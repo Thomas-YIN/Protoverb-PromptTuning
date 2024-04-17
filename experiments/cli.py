@@ -23,12 +23,13 @@ from openprompt.utils.cuda import model_to_device
 
 
 
-def build_dataloader(dataset, template, tokenizer,tokenizer_wrapper_class, config, split, with_label=False):
+def build_dataloader(dataset, template, tokenizer,tokenizer_wrapper_class, config, split, with_label=False, verbalizer=None):
     dataloader = PromptDataLoader(
         dataset = dataset,
         template = template,
         tokenizer = tokenizer,
         tokenizer_wrapper_class=tokenizer_wrapper_class,
+        verbalizer = verbalizer,
         batch_size = config[split].batch_size,
         shuffle = config[split].shuffle_data,
         teacher_forcing = config[split].teacher_forcing if hasattr(config[split],'teacher_forcing') else None,
@@ -146,7 +147,7 @@ def trainer(EXP_PATH, config, Processor, train_dataset = None, valid_dataset = N
 
     # process data and get data_loader
     train_dataloader = build_dataloader(train_dataset, template, plm_tokenizer, plm_wrapper_class, config, "train") if train_dataset else None
-    train_dataloader_with_label = build_dataloader(train_dataset, template, plm_tokenizer, plm_wrapper_class, config, "train", with_label=True) if train_dataset else None
+    train_dataloader_with_label = build_dataloader(train_dataset, template, plm_tokenizer, plm_wrapper_class, config, "train", with_label=True, verbalizer=verbalizer) if train_dataset else None
     valid_dataloader = build_dataloader(valid_dataset, template, plm_tokenizer, plm_wrapper_class, config, "dev") if valid_dataset else None
     test_dataloader = build_dataloader(test_dataset, template, plm_tokenizer, plm_wrapper_class, config, "test") if test_dataset else None
 
