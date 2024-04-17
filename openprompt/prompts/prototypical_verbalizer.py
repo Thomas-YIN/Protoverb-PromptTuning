@@ -94,7 +94,7 @@ class ProtoVerbalizer(Verbalizer):
         embeds = [torch.stack(e) for e in embeds]
         embeds = torch.stack(embeds) # num_class x k x hidden_dim
         instance_mean = embeds.mean(1) # num_class x hidden_dim
-        self.proto = self.head(instance_mean) # num_class x mid_dim
+        self.proto = nn.Parameter(self.head(instance_mean)) # num_class x mid_dim
 
 
     @property

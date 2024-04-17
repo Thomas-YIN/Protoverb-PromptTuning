@@ -37,6 +37,7 @@ class ProtoVerbClassificationRunner(BaseRunner):
     Args:
         model (:obj:`PromptForClassification`): One ``PromptForClassification`` object.
         train_dataloader (:obj:`PromptDataloader`, optional): The dataloader to bachify and process the training data.
+        train_dataloader_with_label: (:obj:`PromptDataloader`, optionla): The dataloader used to fill template with ground truth label word.
         valid_dataloader (:obj:`PromptDataloader`, optionla): The dataloader to bachify and process the val data.
         test_dataloader (:obj:`PromptDataloader`, optional): The dataloader to bachify and process the test data.
         config (:obj:`CfgNode`): A configuration object.
@@ -47,11 +48,10 @@ class ProtoVerbClassificationRunner(BaseRunner):
                  config: CfgNode = None,
                  train_dataloader: Optional[PromptDataLoader] = None,
                  train_dataloader_with_label: Optional[PromptDataLoader] = None,
-
                  valid_dataloader: Optional[PromptDataLoader] = None,
                  test_dataloader: Optional[PromptDataLoader] = None,
                  loss_function: Optional[Callable] = None,
-                 id2label: Optional[Dict] = None,
+                 id2label: Optional[Dict] = None
                  ):
         super().__init__(model = model,
                          config = config,

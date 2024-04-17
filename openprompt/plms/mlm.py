@@ -50,8 +50,7 @@ class MLMTokenizerWrapper(TokenizerWrapper):
                 else:
                     encode_text = [self.mask_token_ids]
                 mask_id += 1
-
-            if piece['text'] in self.special_tokens_maps.keys():
+            if piece['text'][0] in self.special_tokens_maps.keys():
                 to_replace = self.special_tokens_maps[piece['text']]
                 if to_replace is not None:
                     piece['text'] = to_replace
