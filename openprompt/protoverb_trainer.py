@@ -167,4 +167,7 @@ class ProtoVerbClassificationRunner(BaseRunner):
         if self.config.train.train_verblizer == "post":
             self.inner_model.verbalizer.train_proto(self.model, self.train_dataloader, self.config.environment.local_rank)
 
+        # output hidden states for label words of each example, and the prototypes of each class
+        self.inner_model.verbalizer.output_proto(self.model, self.train_dataloader_with_label, self.config.environment.local_rank)
+
         return self.best_score

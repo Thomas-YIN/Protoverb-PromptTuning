@@ -39,8 +39,12 @@ proto_verbalizer:
   file_path: scripts/TextClassification/agnews/manual_verbalizer.txt
   lr: 0.01
   mid_dim: 64
+  # set mid_dim = hidden_dim if use_head is False
+  # mid_dim: 1024
   epochs: 30
   multi_verb: multi
+  # Uncomment the following line to switch off the projection head
+  # use_head: False
 
   
 
