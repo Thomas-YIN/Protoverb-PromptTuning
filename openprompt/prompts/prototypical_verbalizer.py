@@ -18,6 +18,8 @@ from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions, Seq
 
 from transformers.models.t5 import  T5ForConditionalGeneration
 
+import numpy as np
+
 class ProtoVerbalizer(Verbalizer):
     r"""
     The implementation of the prototypical verbalizer in `Prototypical Verbalizer for Prompt-based Few-shot Tuning <https://arxiv.org/pdf/2104.08691v1.pdf>`_ This class is inherited from the :obj:`Verbalizer` class.
@@ -33,6 +35,7 @@ class ProtoVerbalizer(Verbalizer):
         mid_dim: (:obj:`int`, optional): The dimension of prototype embeddings.
         epochs: (:obj:`int`, optional): The training epochs of prototypes.
         multi_verb (:obj:`str`, optional): `multi` to ensemble with manual verbalizers, `proto` to use only ProtoVerb.
+        use_head (:obj:`bool`, optional): True if you intend to project the hidden states to the prototype, False if you intend to use hidden states as prototypes.
     """
     def __init__(self,
                  tokenizer: Optional[PreTrainedTokenizer],
@@ -47,6 +50,7 @@ class ProtoVerbalizer(Verbalizer):
                  mid_dim: Optional[int] = 64,
                  epochs: Optional[int] = 5,
                  multi_verb: Optional[str] = "multi",
+                 use_head: Optional[bool] = True
                 ):
         super().__init__(tokenizer=tokenizer, num_classes=num_classes, classes=classes)
         self.prefix = prefix
@@ -59,11 +63,13 @@ class ProtoVerbalizer(Verbalizer):
         self.trained = False
 
         self.hidden_dims = model.config.hidden_size
+        self.use_head = use_head
 
         # sdkfaljglsakl this is a <mask> news
         # sdkfaljglsakl this is a World news -> PLM 
 
         # encoder: <mask> hidden states -> proto embedding
+        # keep the instantiation of head to minimize code adjustments, change the computation only
         self.head = torch.nn.Linear(self.hidden_dims, self.mid_dim, bias=False)
 
         if label_words is not None: # use label words as an initialization
@@ -94,8 +100,10 @@ class ProtoVerbalizer(Verbalizer):
         embeds = [torch.stack(e) for e in embeds]
         embeds = torch.stack(embeds) # num_class x k x hidden_dim
         instance_mean = embeds.mean(1) # num_class x hidden_dim
-        self.proto = nn.Parameter(self.head(instance_mean)) # num_class x mid_dim
-
+        if self.use_head:
+            self.proto = nn.Parameter(self.head(instance_mean)) # num_class x mid_dim
+        else:
+            self.proto = nn.Parameter(instance_mean)
 
     @property
     def group_parameters_proto(self,):
@@ -167,7 +175,10 @@ class ProtoVerbalizer(Verbalizer):
     def process_hiddens(self, hiddens: torch.Tensor, **kwargs):
         r"""A whole framework to process the original logits over the vocabulary, which contains four steps:
         """
-        proto_logits = self.sim(self.head(hiddens), self.proto)
+        if self.use_head:
+            proto_logits = self.sim(self.head(hiddens), self.proto)
+        else:
+            proto_logits = self.sim(hiddens, self.proto)
         return proto_logits
 
     def project(self,
@@ -345,6 +356,29 @@ class ProtoVerbalizer(Verbalizer):
 
         return loss
 
+    def output_proto(self, model, dataloader, device):
+        # model: PromptForClassification
+        model.eval()
+        embeds = [[] for _ in range(self.num_classes)]
+        with torch.no_grad():
+            for i, batch in enumerate(dataloader):
+                batch = batch.to("cuda:{}".format(device)).to_dict()
+                outputs = model.prompt_model(batch)
+                hidden, _ = self.gather_outputs(outputs)
+                outputs_at_mask = model.extract_at_mask(hidden, batch)
+                for j in range(len(outputs_at_mask)):
+                    label = batch['label'][j]
+                    embeds[label].append(outputs_at_mask[j])
+
+        embeds = [torch.stack(e) for e in embeds]
+        embeds = torch.stack(embeds) # num_class x k x hidden_dim
+
+        if self.use_head:
+            # project hidden states of label words into the proto space
+            embeds = self.head(embeds) # num_class x k x mid_dim
+        out = torch.cat((self.proto.reshape(self.num_classes, 1, -1), embeds), dim=1) # num_class x k+1 x mid_dim
+        with open('proto.npy', 'wb') as f:
+            np.save(f, out.cpu().numpy())
 
     def train_proto(self, model, dataloader, device):
         model.eval()
@@ -364,7 +398,10 @@ class ProtoVerbalizer(Verbalizer):
         instance_mean = embeds.mean(1)
         loss = 0.
         for epoch in range(self.epochs):
-            x = self.head(embeds)
+            if self.use_head:
+                x = self.head(embeds)
+            else:
+                x = embeds
             self.optimizer.zero_grad()
             loss = self.pcl_loss(x)
             loss.backward()
