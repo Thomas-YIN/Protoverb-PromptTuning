@@ -127,16 +127,27 @@ class DBpediaProcessor(DataProcessor):
         self.labels = ["company", "school", "artist", "athlete", "politics", "transportation", "building", "river", "village", "animal", "plant", "album", "film", "book",]
 
     def get_examples(self, data_dir, split):
+        # examples = []
+        # label_file  = open(os.path.join(data_dir,"{}_labels.txt".format(split)),'r')
+        # labels  = [int(x.strip()) for x in label_file.readlines()]
+        # with open(os.path.join(data_dir,'{}.txt'.format(split)),'r') as fin:
+        #     for idx, line in enumerate(fin):
+        #         splited = line.strip().split(". ")
+        #         text_a, text_b = splited[0], splited[1:]
+        #         text_a = text_a+"."
+        #         text_b = ". ".join(text_b)
+        #         example = InputExample(guid=str(idx), text_a=text_a, text_b=text_b, label=int(labels[idx]))
+        #         examples.append(example)
+        # return examples
+        path = os.path.join(data_dir, "{}.csv".format(split))
         examples = []
-        label_file  = open(os.path.join(data_dir,"{}_labels.txt".format(split)),'r')
-        labels  = [int(x.strip()) for x in label_file.readlines()]
-        with open(os.path.join(data_dir,'{}.txt'.format(split)),'r') as fin:
-            for idx, line in enumerate(fin):
-                splited = line.strip().split(". ")
-                text_a, text_b = splited[0], splited[1:]
-                text_a = text_a+"."
-                text_b = ". ".join(text_b)
-                example = InputExample(guid=str(idx), text_a=text_a, text_b=text_b, label=int(labels[idx]))
+        with open(path, encoding='utf8') as f:
+            reader = csv.reader(f, delimiter=',')
+            for idx, row in enumerate(reader):
+                label, title, body = row
+                text_a = title.replace('\\', ' ')
+                text_b = body.replace('\\', ' ')
+                example = InputExample(guid=str(idx), text_a=text_a, text_b=text_b, label=int(label))
                 examples.append(example)
         return examples
 
@@ -278,7 +289,7 @@ class YahooProcessor(DataProcessor):
                 text_a = ' '.join([question_title.replace('\\n', ' ').replace('\\', ' '),
                                    question_body.replace('\\n', ' ').replace('\\', ' ')])
                 text_b = answer.replace('\\n', ' ').replace('\\', ' ')
-                example = InputExample(guid=str(idx), text_a=text_a, text_b=text_b, label=int(label)-1)
+                example = InputExample(guid=str(idx), text_a=text_a, text_b=text_b, label=int(label))
                 examples.append(example)
         return examples
 

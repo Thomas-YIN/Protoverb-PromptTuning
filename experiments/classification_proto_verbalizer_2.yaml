@@ -1,6 +1,6 @@
 dataset:
-  name: agnews
-  path: datasets/TextClassification/agnews
+  name: yahoo
+  path: datasets/TextClassification/yahoo
 
 plm:
   model_name: roberta
@@ -31,16 +31,17 @@ verbalizer: proto_verbalizer
 
 manual_template:
   choice: 0
-  file_path: scripts/TextClassification/agnews/manual_template.txt
+  file_path: scripts/TextClassification/yahoo_answers_topics/manual_template.txt
 
 proto_verbalizer:
   parent_config: verbalizer
   choice: 0
-  file_path: scripts/TextClassification/agnews/manual_verbalizer.txt
+  file_path: scripts/TextClassification/yahoo_answers_topics/manual_verbalizer.json
   lr: 0.01
   mid_dim: 64
   epochs: 30
   multi_verb: multi
+  num_classes: 10
 
   
 
@@ -70,4 +71,3 @@ reproduce:  # seed for reproduction
 classification:
   metric: 
     - accuracy
-    - micro-f1

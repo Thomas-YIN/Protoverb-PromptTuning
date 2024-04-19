@@ -1,6 +1,6 @@
 dataset:
-  name: agnews
-  path: datasets/TextClassification/agnews
+  name: dbpedia
+  path: datasets/TextClassification/dbpedia
 
 plm:
   model_name: roberta
@@ -31,12 +31,12 @@ verbalizer: proto_verbalizer
 
 manual_template:
   choice: 0
-  file_path: scripts/TextClassification/agnews/manual_template.txt
+  file_path: scripts/TextClassification/dbpedia/manual_template.txt
 
 proto_verbalizer:
   parent_config: verbalizer
   choice: 0
-  file_path: scripts/TextClassification/agnews/manual_verbalizer.txt
+  file_path: scripts/TextClassification/dbpedia/manual_verbalizer.txt
   lr: 0.01
   mid_dim: 64
   epochs: 30
@@ -70,4 +70,3 @@ reproduce:  # seed for reproduction
 classification:
   metric: 
     - accuracy
-    - micro-f1
