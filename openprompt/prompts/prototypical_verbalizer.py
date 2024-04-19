@@ -378,7 +378,7 @@ class ProtoVerbalizer(Verbalizer):
             embeds = self.head(embeds) # num_class x k x mid_dim
         out = torch.cat((self.proto.reshape(self.num_classes, 1, -1), embeds), dim=1) # num_class x k+1 x mid_dim
         with open('proto.npy', 'wb') as f:
-            np.save(f, out.cpu().numpy())
+            np.save(f, out.cpu().detach().numpy())
 
     def train_proto(self, model, dataloader, device):
         model.eval()
