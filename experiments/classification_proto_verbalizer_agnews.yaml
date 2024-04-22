@@ -66,12 +66,11 @@ sampling_from_train:
   also_sample_dev: True
   num_examples_per_label_dev: 16
   seed:
-    - 123
+    - 0
 
 reproduce:  # seed for reproduction 
-  seed: 123  # a seed for all random part
+  seed: 0  # a seed for all random part
 
 classification:
   metric: 
     - accuracy
-    - micro-f1
