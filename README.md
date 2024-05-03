@@ -21,14 +21,57 @@ This repo is for the group project completed in the course MSBD5002 at HKUST, 20
 
 
 
-
-
-
 ## Requirements
-
+``` transformers>=4.19.0
+sentencepiece==0.1.96
+scikit-learn>=0.24.2
+tqdm>=4.62.2
+tensorboardX
+nltk
+yacs
+dill
+datasets
+rouge==1.0.0
+pyarrow
+scipy
+accelerate
+torchmetrics 
+```
 
 ## Usage
+#### 1.Install the requirements
+You should have install Python **3.8+** and PyTorch **1.8.1+**.
+Install the python dependencies as follows:
+```shell
+pip install requirements.txt
+```
 
+#### 2. Download the datasets
+The dataset we used is download from huggingface and saved as csv files.
+Run ```./download_agnews.py``` to download **AGNews**.
+Run ```./download_yahoo.py``` to download **Yahoo Answers**.
+Run ```./download_dbpedia.py``` to download **DBPedia**.
+
+#### 3. Basic Experiments
+The experiment configuration file is saved in folder ```./experiments```
+To execute a experiment, using the following command:
+```shell
+python ./experiments/cli.py --config_yaml ./experiments/<your config yaml>
+```
+The configuration for **AGNews** is in ```./experiments/classification_proto_verbalizer_agnews.yaml```.
+
+The configuration for **DBPedia** is in ```./experiments/classification_proto_verbalizer_dbpedia.yaml```.
+
+The configuration for **Yahoo Answers** is in ```./experiments/classification_proto_verbalizer_yahoo.yaml```.
+
+The basic experiments settings are already in the configuration file.
+If you want to change the sample number, change ```sampling_from_train.num_examples_per_label``` and ```sampling_from_train.num_examples_per_label_dev``` in it. 
+If you want to change the random seed, change ```sampling_from_train.seed``` and 
+```reproduce.seed``` in it.
+
+#### 4. Ablation Study
+For the ablation study, the configuration file is ```./experiments/classification_proto_verbalizer_agnews_no_head.yaml```.
+The execution approach is the same as the basic experiments.
 
 ## Operating system
 
