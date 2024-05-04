@@ -17,7 +17,7 @@ This repo is for the group project completed in the course MSBD5002 at HKUST, 20
 - ```./download_dbpedia.py```
     - Script for downloading the DBPedia dataset.
 - ```./download_yahoo.py```
-    - Script for downloading the Yahoo Answers dataset.x
+    - Script for downloading the Yahoo Answers dataset.
 
 
 
@@ -39,7 +39,7 @@ torchmetrics
 ```
 
 ## Usage
-#### 1.Install the requirements
+#### 1. Install the requirements
 You should have install Python **3.8+** and PyTorch **1.8.1+**.
 Install the python dependencies as follows:
 ```shell
